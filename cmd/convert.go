@@ -15,10 +15,9 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
-	"reflect"
 
 	//"k8s.io/api/policy/v1beta1"
 
@@ -30,14 +29,15 @@ import (
 	//_ "k8s.io/client-go/pkg/apis/extensions/install"
 
 	//_ "k8s.io/client-go/pkg/api/install"
+
 	"k8s.io/api/apps/v1beta1"
 	_ "k8s.io/client-go/kubernetes"
-	api "k8s.io/client-go/kubernetes/scheme"
 
 	//_ "k8s.io/client-go/pkg/apis/extensions/install"
 
 	//"github.com/ghodss/yaml"
 
+	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
 	//"github.com/wirelessregistry/signal-graph/backend/pkg/dep/sources/https---github.com-kubernetes-apimachinery/pkg/util/yaml"
 )
@@ -62,44 +62,17 @@ to quickly create a Cobra application.`,
 			fmt.Print(err)
 		}
 
-		decode := api.Codecs.UniversalDeserializer().Decode
-		obj, groupVersionKind, err := decode([]byte(fileContent), nil, nil)
-		fmt.Println(groupVersionKind.Kind)
-
+		jsonBytes, err := yaml.YAMLToJSON(fileContent)
 		if err != nil {
-			log.Fatal(fmt.Sprintf("Error while decoding YAML object. Err was: %s", err))
+			fmt.Printf("Error converting YAML to JSON")
 		}
-		if obj == nil {
-			log.Fatal(fmt.Sprintf("Runtime object is empty"))
+		// unmarshal the json into the kube struct
+		var deployment = v1beta1.Deployment{}
+		err = json.Unmarshal(jsonBytes, &deployment)
+		if err != nil {
+			fmt.Printf("Error unmarshaling JSON")
 		}
-		//obj2, ok := obj.(*v1beta1.Deployment)
-		//obj3 := *obj2
-		objTypeString := reflect.TypeOf(obj).String()
-		fmt.Println(objTypeString)
-		switch objTypeString {
-		case "*v1.Pod":
-			// o is a pod
-		case "*v1alpha1.Role":
-			// o is the actual role Object with all fields etc
-		case "*v1alpha1.RoleBinding":
-		case "*v1alpha1.ClusterRole":
-		case "*v1alpha1.ClusterRoleBinding":
-		case "*v1.ServiceAccount":
-			break
-		case "*v1beta1.Deployment":
-			fmt.Printf("DEPLOYMENT DETECTED")
-			obj2, ok := obj.(*v1beta1.Deployment)
-			if ok == false {
-				fmt.Println("Type assertion is incorrect")
-				break
-			}
-			fmt.Printf("%+v\n", obj2)
-		default:
-			//fmt.Printf("%+v\n", obj)
-			//fmt.Printf("default")
-			//fmt.Println(reflect.TypeOf(o))
-			//o is unknown for us
-		}
+		fmt.Printf("%+v\n", deployment)
 	},
 }
 
