@@ -43,9 +43,9 @@ import (
 )
 
 // convertCmd represents the convert command
-var convertCmd = &cobra.Command{
-	Use:   "convert",
-	Short: "Convert a kubernetes yaml file to a golang struct.",
+var convertDeploymentCmd = &cobra.Command{
+	Use:   "convertDeployment",
+	Short: "Convert a kubernetes Deployment yaml file to a golang struct.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -78,7 +78,7 @@ to quickly create a Cobra application.`,
 
 func init() {
 	var File string
-	rootCmd.AddCommand(convertCmd)
+	rootCmd.AddCommand(convertDeploymentCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -89,6 +89,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	//convertCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	convertCmd.Flags().StringVarP(&File, "file", "f", "", "File location of Kubernetes yaml file (required)")
-	convertCmd.MarkPersistentFlagRequired("file")
+	convertDeploymentCmd.Flags().StringVarP(&File, "file", "f", "", "File location of Kubernetes yaml file (required)")
+	convertDeploymentCmd.MarkPersistentFlagRequired("file")
 }
